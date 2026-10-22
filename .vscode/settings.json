@@ -1,0 +1,7 @@
+{
+  "dotnetAcquisitionExtension.sharedExistingDotnetPath": "/usr/local/share/dotnet/dotnet",
+  "omnisharp.dotNetCliPaths": [
+    "/usr/local/share/dotnet"
+  ],
+  "dotnet.defaultSolution": "PokeDock.sln"
+}

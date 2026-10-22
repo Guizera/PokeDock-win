@@ -1,0 +1,375 @@
+<Window
+    x:Class="PokeDock.Windows.DockWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PokeDock.Windows"
+    Title="PokeDock">
+
+    <Grid x:Name="Root" Background="Transparent" Loaded="Root_Loaded">
+        <Grid.Resources>
+        <Storyboard x:Name="SearchExpandStoryboard">
+            <DoubleAnimation
+                Storyboard.TargetName="SearchHost"
+                Storyboard.TargetProperty="Width"
+                To="250"
+                Duration="0:0:0.18"
+                EnableDependentAnimation="True" />
+            <DoubleAnimation
+                Storyboard.TargetName="SearchEditor"
+                Storyboard.TargetProperty="Opacity"
+                To="1"
+                Duration="0:0:0.14" />
+        </Storyboard>
+        <Storyboard x:Name="SearchCollapseStoryboard" Completed="SearchCollapseStoryboard_Completed">
+            <DoubleAnimation
+                Storyboard.TargetName="SearchHost"
+                Storyboard.TargetProperty="Width"
+                To="42"
+                Duration="0:0:0.16"
+                EnableDependentAnimation="True" />
+            <DoubleAnimation
+                Storyboard.TargetName="SearchEditor"
+                Storyboard.TargetProperty="Opacity"
+                To="0"
+                Duration="0:0:0.10" />
+        </Storyboard>
+        <Style x:Key="DockSearchTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid Background="Transparent">
+                            <ScrollViewer
+                                x:Name="ContentElement"
+                                Height="34"
+                                Padding="0,5,0,0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                HorizontalScrollMode="Auto"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollMode="Disabled"
+                                VerticalScrollBarVisibility="Disabled"
+                                IsTabStop="False"
+                                ZoomMode="Disabled"
+                                Foreground="{TemplateBinding Foreground}"
+                                AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DockIconButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="#1FFFFFFF" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="ButtonRoot" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1" />
+                            </Grid.RenderTransform>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="ButtonSurface.Background" Value="#30FFFFFF" />
+                                            <Setter Target="ButtonSurface.BorderBrush" Value="#20FFFFFF" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="ButtonSurface.Background" Value="#52FFFFFF" />
+                                            <Setter Target="ButtonScale.ScaleX" Value="0.92" />
+                                            <Setter Target="ButtonScale.ScaleY" Value="0.92" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="ButtonRoot.Opacity" Value="0.70" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Border
+                                x:Name="ButtonSurface"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}">
+                                <ContentPresenter
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        </Grid.Resources>
+        <Border x:Name="DockSurface"
+            Padding="14,5"
+            CornerRadius="20"
+            BorderBrush="Transparent"
+            BorderThickness="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#1A5940" />
+                    <GradientStop Offset="1" Color="#61AD57" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition x:Name="WidgetsLeftSpacerColumn" Width="9" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition x:Name="WidgetsRightSpacerColumn" Width="9" />
+                    <ColumnDefinition Width="54" />
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="42" />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="30" />
+                </Grid.ColumnDefinitions>
+
+                <Canvas x:Name="ThemeEffectCanvas" Grid.ColumnSpan="13" IsHitTestVisible="False" Opacity="0.95" />
+
+                <Button
+                    Grid.Column="0"
+                    Width="48"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    Click="Pokedex_Click"
+                    local:Localization.ToolTipKey="OpenPokedex">
+                    <local:PokedexDockIcon Width="46" Height="46" />
+                </Button>
+
+                <Button
+                    Grid.Column="1"
+                    Width="48"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    Click="Explorer_Click"
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="28"
+                    Foreground="White"
+                    Content="&#xE8B7;"
+                    local:Localization.ToolTipKey="FileExplorer" />
+
+                <Grid
+                    x:Name="SearchHost"
+                    Grid.Column="2"
+                    Width="42"
+                    Height="48"
+                    SizeChanged="SearchHost_SizeChanged">
+                    <Button
+                        x:Name="SearchButton"
+                        Width="40"
+                        Height="48"
+                        Style="{StaticResource DockIconButtonStyle}"
+                        Click="Search_Click"
+                        FontFamily="Segoe Fluent Icons"
+                        FontSize="21"
+                        Foreground="White"
+                        Content="&#xE721;"
+                        local:Localization.ToolTipKey="SearchWindows" />
+
+                    <Border
+                        x:Name="SearchEditor"
+                        Visibility="Collapsed"
+                        Opacity="0"
+                        Height="42"
+                        Margin="2,3"
+                        Padding="9,0,4,0"
+                        Background="#F2FFFFFF"
+                        BorderBrush="#54FFFFFF"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                        <Grid ColumnSpacing="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="30" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                Glyph="&#xE721;"
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Foreground="{StaticResource GameBoyDarkBrush}"
+                                VerticalAlignment="Center" />
+                            <TextBox
+                                x:Name="SearchBox"
+                                Grid.Column="1"
+                                MinWidth="0"
+                                Style="{StaticResource DockSearchTextBoxStyle}"
+                                FontFamily="{StaticResource DockTextFont}"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource GameBoyDarkBrush}"
+                                SelectionHighlightColor="{StaticResource GameBoyActionBrush}"
+                                TextChanged="DockSearchBox_TextChanged"
+                                KeyDown="SearchBox_KeyDown"
+                                LostFocus="SearchBox_LostFocus" />
+                            <TextBlock
+                                x:Name="SearchPlaceholderText"
+                                Grid.Column="1"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False"
+                                FontFamily="{StaticResource DockTextFont}"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Foreground="#A6213D29" />
+                            <Button
+                                x:Name="SearchClearButton"
+                                Grid.Column="2"
+                                Width="28"
+                                Height="28"
+                                Padding="0"
+                                Style="{StaticResource DockIconButtonStyle}"
+                                Click="SearchClear_Click"
+                                FontFamily="{StaticResource GameBoyFont}"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GameBoyDarkBrush}"
+                                Content="×"
+                                local:Localization.ToolTipKey="ClearSearch" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <ScrollViewer
+                    x:Name="PinnedAppsScroller"
+                    Grid.Column="3"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Disabled"
+                    VerticalScrollMode="Disabled"
+                    ZoomMode="Disabled">
+                    <StackPanel x:Name="PinnedAppsPanel" Orientation="Horizontal" Spacing="2" />
+                </ScrollViewer>
+
+                <ScrollViewer
+                    x:Name="RunningAppsScroller"
+                    Grid.Column="4"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Disabled"
+                    VerticalScrollMode="Disabled"
+                    ZoomMode="Disabled">
+                    <StackPanel x:Name="RunningAppsPanel" Orientation="Horizontal" Spacing="2" />
+                </ScrollViewer>
+
+                <Rectangle x:Name="WidgetsLeftDivider" Grid.Column="5" Width="1" Height="38" Fill="#66FFFFFF" />
+
+                <ScrollViewer
+                    x:Name="WidgetsScroller"
+                    Grid.Column="6"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Disabled"
+                    VerticalScrollMode="Disabled"
+                    ZoomMode="Disabled">
+                    <StackPanel
+                        x:Name="WidgetsPanel"
+                        Orientation="Horizontal"
+                        Spacing="6" />
+                </ScrollViewer>
+
+                <Rectangle x:Name="WidgetsRightDivider" Grid.Column="7" Width="1" Height="38" Fill="#66FFFFFF" />
+
+                <Button
+                    x:Name="PokemonButton"
+                    Grid.Column="8"
+                    Width="54"
+                    Height="50"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    Click="Pokemon_Click">
+                    <local:PixelArtImage x:Name="PokemonImage" Width="46" Height="46" />
+                </Button>
+
+                <Button
+                    x:Name="SystemStatusButton"
+                    Grid.Column="9"
+                    Width="70"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    local:Localization.ToolTipKey="SystemStatus">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <FontIcon x:Name="NetworkStatusIcon" Glyph="&#xE701;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="White" />
+                        <TextBlock x:Name="BatteryStatusText" VerticalAlignment="Center" FontFamily="{StaticResource DockTextFont}" FontSize="11" FontWeight="Bold" Foreground="White" />
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem local:Localization.Key="QuickSettings" Click="QuickSettings_Click" />
+                            <MenuFlyoutItem local:Localization.Key="NotificationsCalendar" Click="Notifications_Click" />
+                            <MenuFlyoutItem local:Localization.Key="TaskView" Click="TaskView_Click" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem local:Localization.Key="SoundSettings" Click="SoundSettings_Click" />
+                            <MenuFlyoutItem local:Localization.Key="NetworkSettings" Click="NetworkSettings_Click" />
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+
+                <Button
+                    Grid.Column="10"
+                    Width="40"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    Click="Settings_Click"
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="19"
+                    Foreground="White"
+                    Content="&#xE713;"
+                    local:Localization.ToolTipKey="OpenControls" />
+
+                <Button
+                    Grid.Column="11"
+                    Width="38"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="19"
+                    Foreground="White"
+                    Content="&#xE7E8;"
+                    local:Localization.ToolTipKey="WindowsPowerOptions">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem local:Localization.Key="Lock" Click="Lock_Click" />
+                            <MenuFlyoutItem local:Localization.Key="Sleep" Click="Sleep_Click" />
+                            <MenuFlyoutItem local:Localization.Key="SignOut" Click="SignOut_Click" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem local:Localization.Key="Restart" Click="Restart_Click" />
+                            <MenuFlyoutItem local:Localization.Key="ShutDown" Click="Shutdown_Click" />
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+
+                <Button
+                    Grid.Column="12"
+                    Width="28"
+                    Height="48"
+                    Style="{StaticResource DockIconButtonStyle}"
+                    Click="Exit_Click"
+                    FontFamily="{StaticResource GameBoyFont}"
+                    FontSize="18"
+                    FontWeight="Black"
+                    Foreground="White"
+                    Content="×"
+                    local:Localization.ToolTipKey="ExitPokeDock" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

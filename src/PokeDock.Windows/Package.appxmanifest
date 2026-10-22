@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 uap5 rescap">
+  <Identity Name="PokeDock.Windows" Publisher="CN=PokeDock Development" Version="0.1.0.0" />
+  <Properties>
+    <DisplayName>PokeDock</DisplayName>
+    <PublisherDisplayName>PokeDock</PublisherDisplayName>
+    <Logo>Assets\App\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.28000.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="PokeDock"
+        Description="Seu Dock Pokémon para Windows"
+        BackgroundColor="#142219"
+        Square150x150Logo="Assets\App\Square150x150Logo.png"
+        Square44x44Logo="Assets\App\Square44x44Logo.png">
+        <uap:DefaultTile ShortName="PokeDock" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap5:Extension
+          Category="windows.startupTask"
+          Executable="PokeDock.Windows.exe"
+          EntryPoint="Windows.FullTrustApplication">
+          <uap5:StartupTask
+            TaskId="PokeDockStartup"
+            Enabled="false"
+            DisplayName="PokeDock" />
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="globalMediaControl" />
+    <rescap:Capability Name="packageManagement" />
+    <uap3:Capability Name="userNotificationListener" />
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
+

@@ -1,0 +1,224 @@
+<Window
+    x:Class="PokeDock.Windows.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PokeDock.Windows"
+    Title="PokeDock · Pokédex">
+
+    <Grid x:Name="Root" Loaded="Root_Loaded" Background="{StaticResource GameBoyShellBrush}" Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="17" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="38" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Ellipse Width="23" Height="23" Fill="{StaticResource GameBoyActionBrush}" Stroke="White" StrokeThickness="3" />
+            <TextBlock Grid.Column="1" Margin="12,0,0,0" Text="POKÉDOCK" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" CharacterSpacing="140" Foreground="{StaticResource GameBoyDarkBrush}" />
+            <StackPanel Grid.Column="2" Margin="0,0,12,0" HorizontalAlignment="Right">
+                <TextBlock x:Name="BallCountText" FontFamily="{StaticResource GameBoyFont}" FontSize="11" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" HorizontalAlignment="Right" />
+                <TextBlock x:Name="NextEncounterText" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" HorizontalAlignment="Right" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8">
+                <Button Content="DOCK" Click="DockSettings_Click" Style="{StaticResource GameBoyButtonStyle}" />
+                <Button x:Name="SimulateEncounterButton" local:Localization.Key="TestEncounter" Click="SimulateEncounter_Click" Style="{StaticResource GameBoyButtonStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="9" Background="{StaticResource GameBoyBezelBrush}" CornerRadius="18">
+            <Border Padding="15" Background="{StaticResource GameBoyScreenBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="3" CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="2" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="POKÉDEX / KANTO" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" CharacterSpacing="70" Foreground="{StaticResource GameBoyDarkBrush}" />
+                            <TextBlock local:Localization.Key="PokedexSubtitle" FontFamily="{StaticResource GameBoyFont}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Padding="10,7" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="5">
+                            <TextBlock x:Name="StatusText" local:Localization.Key="Exploring" FontFamily="{StaticResource GameBoyFont}" FontSize="11" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                        </Border>
+                    </Grid>
+
+                    <Grid Grid.Row="2" ColumnSpacing="9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="5">
+                            <StackPanel Orientation="Horizontal" Spacing="9"><TextBlock Text="✓" FontSize="19" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /><StackPanel><TextBlock x:Name="CaughtCountText" Text="0/151" FontFamily="{StaticResource GameBoyFont}" FontSize="17" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" /><TextBlock local:Localization.Key="Caught" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /></StackPanel></StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="5">
+                            <StackPanel Orientation="Horizontal" Spacing="9"><TextBlock Text="◉" FontSize="19" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /><StackPanel><TextBlock x:Name="SeenCountText" Text="0/151" FontFamily="{StaticResource GameBoyFont}" FontSize="17" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" /><TextBlock local:Localization.Key="Seen" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /></StackPanel></StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="5">
+                            <StackPanel Orientation="Horizontal" Spacing="9"><TextBlock Text="↻" FontSize="19" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /><StackPanel><TextBlock x:Name="DuplicateCountText" Text="0" FontFamily="{StaticResource GameBoyFont}" FontSize="17" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" /><TextBlock local:Localization.Key="Duplicates" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" /></StackPanel></StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="205" /></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <Button x:Name="AllFilterButton" local:Localization.Key="All" Click="AllFilter_Click" Style="{StaticResource GameBoyPrimaryButtonStyle}" />
+                            <Button x:Name="CaughtFilterButton" local:Localization.Key="Caught" Click="CaughtFilter_Click" Style="{StaticResource GameBoyButtonStyle}" />
+                            <Button x:Name="SeenFilterButton" local:Localization.Key="Seen" Click="SeenFilter_Click" Style="{StaticResource GameBoyButtonStyle}" />
+                            <Button x:Name="UnknownFilterButton" local:Localization.Key="Unknown" Click="UnknownFilter_Click" Style="{StaticResource GameBoyButtonStyle}" />
+                        </StackPanel>
+                        <TextBox x:Name="SearchBox" Grid.Column="2" Height="36" local:Localization.PlaceholderKey="SearchPokemon" TextChanged="SearchBox_TextChanged" FontFamily="{StaticResource GameBoyFont}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="5" />
+                    </Grid>
+
+                    <Rectangle Grid.Row="6" Fill="{StaticResource GameBoyDarkBrush}" />
+
+                    <GridView x:Name="PokemonGrid" Grid.Row="8" SelectionMode="None" IsItemClickEnabled="True" ItemClick="PokemonGrid_ItemClick" SizeChanged="PokemonGrid_SizeChanged">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" ItemWidth="168" ItemHeight="158" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="GridViewItem">
+                                            <Grid Background="Transparent">
+                                                <ContentPresenter
+                                                    Content="{TemplateBinding Content}"
+                                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                    ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Height="150" Margin="4" Padding="9" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="6">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Number}" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding CaptureBadge}" Visibility="{Binding CaptureBadgeVisibility}" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                        </Grid>
+                                        <Grid Grid.Row="1" Width="78" Height="78">
+                                            <local:PixelArtImage Source="{Binding SpriteUri}" Width="78" Height="78" Opacity="{Binding SpriteOpacity}" Visibility="{Binding SpriteVisibility}" />
+                                            <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="38" FontWeight="Black" Foreground="{StaticResource GameBoyMidBrush}" Visibility="{Binding UnknownVisibility}" />
+                                        </Grid>
+                                        <TextBlock Grid.Row="2" Text="{Binding DisplayName}" FontFamily="{StaticResource GameBoyFont}" FontSize="12" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Row="3" Text="{Binding Status}" FontFamily="{StaticResource GameBoyFont}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
+            </Border>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="4,10,4,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Ellipse Width="11" Height="11" Fill="{StaticResource GameBoyActionBrush}" />
+            <TextBlock Grid.Column="1" Margin="9,0,0,0" local:Localization.Key="EncounterSystem" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" CharacterSpacing="60" Foreground="{StaticResource GameBoyMidBrush}" />
+            <TextBlock Grid.Column="2" local:Localization.Key="SelectAction" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+        </Grid>
+
+        <Grid x:Name="PokemonDetailOverlay" Grid.RowSpan="4" Background="#A0000000" Visibility="Collapsed">
+            <Border Width="560" Padding="22" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource GameBoyShellBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="20">
+                <StackPanel Spacing="18">
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="142" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="142" Height="142" Padding="10" Background="{StaticResource GameBoyScreenBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="3" CornerRadius="8">
+                            <local:PixelArtImage x:Name="DetailPokemonImage" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Spacing="10" VerticalAlignment="Center">
+                            <TextBlock x:Name="DetailPokemonNameText" TextWrapping="Wrap" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                            <StackPanel x:Name="DetailTypesPanel" Orientation="Horizontal" Spacing="7" />
+                            <TextBlock x:Name="DetailRarityText" FontFamily="{StaticResource GameBoyFont}" FontSize="12" FontWeight="Bold" />
+                            <TextBlock x:Name="DetailCaptureChanceText" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Rectangle Height="2" Fill="{StaticResource GameBoyDarkBrush}" />
+
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" MinHeight="120" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="6">
+                            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                                <TextBlock Text="✓" HorizontalAlignment="Center" FontSize="22" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock x:Name="DetailCaughtCountText" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock local:Localization.Key="Catches" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" MinHeight="120" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="6">
+                            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                                <TextBlock Text="◉" HorizontalAlignment="Center" FontSize="22" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock x:Name="DetailSeenCountText" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock local:Localization.Key="Encounters" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" MinHeight="120" Padding="10" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="6">
+                            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                                <TextBlock Text="↻" HorizontalAlignment="Center" FontSize="22" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock x:Name="DetailDuplicateCountText" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="20" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" />
+                                <TextBlock local:Localization.Key="Duplicates" HorizontalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Padding="12" Background="{StaticResource GameBoyLightBrush}" BorderBrush="{StaticResource GameBoyDarkBrush}" BorderThickness="2" CornerRadius="6">
+                        <StackPanel Spacing="6">
+                            <TextBlock local:Localization.Key="LastEncounter" FontFamily="{StaticResource GameBoyFont}" FontSize="10" FontWeight="Black" Foreground="{StaticResource GameBoyMidBrush}" />
+                            <TextBlock x:Name="DetailLastEncounterText" TextWrapping="Wrap" FontFamily="{StaticResource GameBoyFont}" FontSize="13" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock local:Localization.Key="KantoRecord" VerticalAlignment="Center" FontFamily="{StaticResource GameBoyFont}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource GameBoyMidBrush}" />
+                        <Button x:Name="ClosePokemonDetailButton" Grid.Column="1" local:Localization.Key="Close" Click="ClosePokemonDetail_Click" Style="{StaticResource GameBoyButtonStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
