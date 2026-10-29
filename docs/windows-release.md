@@ -6,11 +6,23 @@ O canal de distribuição usa um bundle MSIX assinado e um arquivo `PokeDock.app
 
 1. Escolha uma assinatura de produção confiável pelo Windows. Um certificado autoassinado serve apenas para testes porque teria de ser instalado manualmente em cada computador.
 2. Configure a identidade do publicador como variável do repositório:
-   - `WINDOWS_PUBLISHER`: assunto exato do certificado, incluindo ordem e campos, por exemplo `CN=Empresa, O=Empresa, C=BR`.
-   - `WINDOWS_SIGNING_MODE`: `artifact` ou `pfx`.
+   - `WINDOWS_SIGNING_MODE`: `artifact`, `esigner` ou `pfx`.
+   - `WINDOWS_PUBLISHER`: assunto exato do certificado, incluindo ordem e campos, por exemplo `CN=Empresa, O=Empresa, C=BR`. Esta variável não é necessária no modo `esigner`, pois o workflow lê o publicador diretamente do certificado carregado.
 3. Crie o environment `windows-release` no GitHub e proteja-o com aprovação manual.
 
-### Opção A: Azure Artifact Signing
+### Opção A: SSL.com eSigner
+
+Use `WINDOWS_SIGNING_MODE=esigner` e crie estes secrets dentro do environment `windows-release`:
+
+- `ESIGNER_USERNAME`: usuário da conta SSL.com.
+- `ESIGNER_PASSWORD`: senha da conta SSL.com.
+- `ESIGNER_TOTP_SECRET`: código secreto exibido junto do QR Code do eSigner. Este é o segredo fixo que gera os códigos de seis dígitos; não use o PIN de quatro dígitos nem um código temporário do aplicativo autenticador.
+
+O workflow instala uma versão fixa e verificada do eSigner CKA, carrega o certificado no repositório de certificados do runner e assina o bundle MSIX com `SignTool`. A chave privada permanece no HSM da SSL.com. Se a conta tiver mais de um certificado de assinatura, configure também a variável opcional `ESIGNER_CERTIFICATE_THUMBPRINT` com a impressão digital do certificado correto.
+
+Nunca envie essas credenciais por mensagem, não as coloque em variáveis comuns e não as versione. O PIN de quatro dígitos não é usado pelo GitHub Actions.
+
+### Opção B: Azure Artifact Signing
 
 Configure uma credencial federada OIDC para o GitHub e atribua a ela a função **Artifact Signing Certificate Profile Signer**. Depois, crie:
 
@@ -19,7 +31,7 @@ Configure uma credencial federada OIDC para o GitHub e atribua a ela a função 
 
 Use `WINDOWS_SIGNING_MODE=artifact`. A disponibilidade de perfis de confiança pública depende do país e do tipo de identidade validada pela Microsoft.
 
-### Opção B: certificado PFX confiável
+### Opção C: certificado PFX confiável
 
 Converta o PFX para Base64 sem quebras de linha e salve o conteúdo no secret `WINDOWS_CERTIFICATE_BASE64`. Salve a senha em `WINDOWS_CERTIFICATE_PASSWORD` e use `WINDOWS_SIGNING_MODE=pfx`. Nunca versione o PFX, a senha ou o Base64.
 
@@ -37,7 +49,7 @@ O workflow `Release Windows` executa testes de empacotamento, produz um bundle �
 - `PokeDock-Windows.msixbundle`
 - `PokeDock.appinstaller`
 
-O workflow também pode ser iniciado manualmente pela aba Actions. Se o release da tag já existir, os dois assets Windows são adicionados ou substituídos sem remover os assets do macOS.
+O workflow também pode ser iniciado manualmente pela aba Actions. Por segurança, uma execução manual não publica um GitHub Release por padrão: ela apenas mantém o bundle assinado e o `.appinstaller` como artefatos privados da execução para validação. Marque `publish_release` somente quando quiser publicar. Se o release da tag já existir, os dois assets Windows são adicionados ou substituídos sem remover outros assets.
 
 Se macOS e Windows compartilharem o mesmo repositório, cada release estável que se tornar `latest` precisa conter os assets das duas plataformas. Um release estável apenas de macOS faria a URL `releases/latest/download/PokeDock.appinstaller` deixar de encontrar o feed Windows. Como alternativa, mantenha o app Windows em um repositório próprio.
 

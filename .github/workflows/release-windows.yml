@@ -10,6 +10,11 @@ on:
         description: Stable version without the v prefix (for example, 1.3.0)
         required: true
         type: string
+      publish_release:
+        description: Publish or update the public GitHub Release after signing
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -63,22 +68,127 @@ jobs:
         env:
           SIGNING_MODE: ${{ vars.WINDOWS_SIGNING_MODE }}
           PUBLISHER: ${{ vars.WINDOWS_PUBLISHER }}
+          ESIGNER_USERNAME: ${{ secrets.ESIGNER_USERNAME }}
+          ESIGNER_PASSWORD: ${{ secrets.ESIGNER_PASSWORD }}
+          ESIGNER_TOTP_SECRET: ${{ secrets.ESIGNER_TOTP_SECRET }}
         run: |
-          if ($env:SIGNING_MODE -notin @('artifact', 'pfx')) {
-            throw 'Set the WINDOWS_SIGNING_MODE repository variable to artifact or pfx.'
+          if ($env:SIGNING_MODE -notin @('artifact', 'esigner', 'pfx')) {
+            throw 'Set the WINDOWS_SIGNING_MODE repository variable to artifact, esigner, or pfx.'
           }
-          if ([string]::IsNullOrWhiteSpace($env:PUBLISHER)) {
+
+          if ($env:SIGNING_MODE -eq 'esigner') {
+            if ([string]::IsNullOrWhiteSpace($env:ESIGNER_USERNAME) -or
+                [string]::IsNullOrWhiteSpace($env:ESIGNER_PASSWORD) -or
+                [string]::IsNullOrWhiteSpace($env:ESIGNER_TOTP_SECRET)) {
+              throw 'Configure ESIGNER_USERNAME, ESIGNER_PASSWORD, and ESIGNER_TOTP_SECRET as environment secrets.'
+            }
+          } elseif ([string]::IsNullOrWhiteSpace($env:PUBLISHER)) {
             throw 'Set WINDOWS_PUBLISHER to the exact certificate subject, such as CN=Your Company, O=Your Company, C=BR.'
           }
 
-      - name: Configure package identity
+          if (-not [string]::IsNullOrWhiteSpace($env:PUBLISHER)) {
+            "WINDOWS_PUBLISHER=$($env:PUBLISHER)" >> $env:GITHUB_ENV
+          }
+
+      - name: Load SSL.com eSigner certificate
+        if: ${{ vars.WINDOWS_SIGNING_MODE == 'esigner' }}
         shell: pwsh
         env:
-          PUBLISHER: ${{ vars.WINDOWS_PUBLISHER }}
+          ESIGNER_USERNAME: ${{ secrets.ESIGNER_USERNAME }}
+          ESIGNER_PASSWORD: ${{ secrets.ESIGNER_PASSWORD }}
+          ESIGNER_TOTP_SECRET: ${{ secrets.ESIGNER_TOTP_SECRET }}
+          PREFERRED_THUMBPRINT: ${{ vars.ESIGNER_CERTIFICATE_THUMBPRINT }}
+        run: |
+          $ckaVersion = '1.1.2'
+          $ckaSha256 = '071ca52986795e7a00dfbd87cc5818d03af74daac32dfe32afd4171b676c4d13'
+          $ckaUrl = "https://github.com/SSLcom/eSignerCKA/releases/download/v$ckaVersion/SSL.COM-eSigner-CKA_$ckaVersion.zip"
+          $archivePath = Join-Path $env:RUNNER_TEMP 'esigner-cka.zip'
+          $extractPath = Join-Path $env:RUNNER_TEMP 'esigner-cka-installer'
+          $installPath = Join-Path $env:RUNNER_TEMP 'eSignerCKA'
+          $masterKeyPath = Join-Path $installPath 'master.key'
+
+          Invoke-WebRequest -Uri $ckaUrl -OutFile $archivePath
+          $actualHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $ckaSha256) {
+            throw "The eSigner CKA archive hash did not match the pinned release: $actualHash"
+          }
+
+          Expand-Archive -LiteralPath $archivePath -DestinationPath $extractPath -Force
+          $installer = Get-ChildItem $extractPath -Filter *.exe -Recurse | Select-Object -First 1
+          if ($null -eq $installer) {
+            throw 'The eSigner CKA installer was not found in the downloaded archive.'
+          }
+
+          New-Item -ItemType Directory -Force -Path $installPath | Out-Null
+          $installerArguments = @(
+            '/CURRENTUSER'
+            '/VERYSILENT'
+            '/SUPPRESSMSGBOXES'
+            "/DIR=$installPath"
+          )
+          $process = Start-Process $installer.FullName -ArgumentList $installerArguments -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "The eSigner CKA installer failed with exit code $($process.ExitCode)."
+          }
+
+          $registerKsp = Join-Path $installPath 'RegisterKSP.exe'
+          $configureCsp = Join-Path $installPath 'eSignerCSP.Config.exe'
+          $ckaTool = Join-Path $installPath 'eSignerCKATool.exe'
+          foreach ($requiredTool in @($registerKsp, $configureCsp, $ckaTool)) {
+            if (-not (Test-Path -LiteralPath $requiredTool)) {
+              throw "Required eSigner CKA tool was not installed: $requiredTool"
+            }
+          }
+
+          & $registerKsp | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            throw "RegisterKSP failed with exit code $LASTEXITCODE."
+          }
+          & $configureCsp | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            throw "eSignerCSP.Config failed with exit code $LASTEXITCODE."
+          }
+          & $ckaTool config `
+            -mode product `
+            -user $env:ESIGNER_USERNAME `
+            -pass $env:ESIGNER_PASSWORD `
+            -totp $env:ESIGNER_TOTP_SECRET `
+            -key $masterKeyPath `
+            -r
+          if ($LASTEXITCODE -ne 0) {
+            throw "eSigner CKA configuration failed with exit code $LASTEXITCODE."
+          }
+
+          & $ckaTool unload | Out-Null
+          & $ckaTool load
+          if ($LASTEXITCODE -ne 0) {
+            throw "eSigner CKA could not load the certificate with exit code $LASTEXITCODE."
+          }
+
+          $certificates = @(
+            Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert |
+              Where-Object { $_.HasPrivateKey -and $_.NotAfter -gt (Get-Date) }
+          )
+          if (-not [string]::IsNullOrWhiteSpace($env:PREFERRED_THUMBPRINT)) {
+            $normalizedThumbprint = $env:PREFERRED_THUMBPRINT.Replace(' ', '').ToUpperInvariant()
+            $certificates = @($certificates | Where-Object Thumbprint -EQ $normalizedThumbprint)
+          }
+          if ($certificates.Count -ne 1) {
+            throw "Expected exactly one eSigner code-signing certificate, but found $($certificates.Count). Set ESIGNER_CERTIFICATE_THUMBPRINT when the account has multiple certificates."
+          }
+
+          $certificate = $certificates[0]
+          "WINDOWS_CERTIFICATE_THUMBPRINT=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
+          "WINDOWS_PUBLISHER=$($certificate.Subject)" >> $env:GITHUB_ENV
+          "ESIGNER_CKA_DIR=$installPath" >> $env:GITHUB_ENV
+          Write-Host "Loaded code-signing certificate for publisher $($certificate.Subject)."
+
+      - name: Configure package identity
+        shell: pwsh
         run: >-
           ./scripts/Set-PackageIdentity.ps1
           -Version "${{ steps.release.outputs.package_version }}"
-          -Publisher $env:PUBLISHER
+          -Publisher $env:WINDOWS_PUBLISHER
 
       - name: Build x64 and ARM64 MSIX bundle
         shell: pwsh
@@ -159,10 +269,31 @@ jobs:
           }
           Remove-Item -LiteralPath $certificatePath -Force
 
+      - name: Sign with SSL.com eSigner
+        if: ${{ vars.WINDOWS_SIGNING_MODE == 'esigner' }}
+        shell: pwsh
+        run: |
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse |
+            Where-Object FullName -Match '\\x64\\signtool\.exe$' |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if ($null -eq $signTool) {
+            throw 'SignTool was not found on the runner.'
+          }
+
+          & $signTool.FullName sign `
+            /debug `
+            /fd SHA256 `
+            /sha1 $env:WINDOWS_CERTIFICATE_THUMBPRINT `
+            /tr http://ts.ssl.com `
+            /td SHA256 `
+            artifacts\release\PokeDock-Windows.msixbundle
+          if ($LASTEXITCODE -ne 0) {
+            throw "eSigner SignTool operation failed with exit code $LASTEXITCODE."
+          }
+
       - name: Verify signature and create update feed
         shell: pwsh
-        env:
-          PUBLISHER: ${{ vars.WINDOWS_PUBLISHER }}
         run: |
           $bundle = (Resolve-Path artifacts\release\PokeDock-Windows.msixbundle).Path
           $signature = Get-AuthenticodeSignature -FilePath $bundle
@@ -174,7 +305,7 @@ jobs:
           $tag = '${{ steps.release.outputs.tag }}'
           ./scripts/New-AppInstaller.ps1 `
             -Version '${{ steps.release.outputs.package_version }}' `
-            -Publisher $env:PUBLISHER `
+            -Publisher $env:WINDOWS_PUBLISHER `
             -AppInstallerUri "https://github.com/$repository/releases/latest/download/PokeDock.appinstaller" `
             -BundleUri "https://github.com/$repository/releases/download/$tag/PokeDock-Windows.msixbundle" `
             -OutputPath artifacts\release\PokeDock.appinstaller
@@ -187,6 +318,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub Release assets
+        if: ${{ github.event_name == 'push' || inputs.publish_release }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -205,4 +337,21 @@ jobs:
               --target $env:GITHUB_SHA `
               --title "PokeDock ${{ steps.release.outputs.semver }}" `
               --generate-notes
+          }
+
+      - name: Unload SSL.com eSigner certificate
+        if: ${{ always() && vars.WINDOWS_SIGNING_MODE == 'esigner' }}
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:ESIGNER_CKA_DIR)) {
+            Write-Host 'eSigner CKA was not initialized; no cleanup is required.'
+            exit 0
+          }
+          $ckaTool = Join-Path $env:ESIGNER_CKA_DIR 'eSignerCKATool.exe'
+          if (Test-Path -LiteralPath $ckaTool) {
+            & $ckaTool unload | Out-Null
+          }
+          $masterKeyPath = Join-Path $env:ESIGNER_CKA_DIR 'master.key'
+          if (Test-Path -LiteralPath $masterKeyPath) {
+            Remove-Item -LiteralPath $masterKeyPath -Force
           }
