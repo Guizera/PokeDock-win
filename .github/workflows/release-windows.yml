@@ -166,11 +166,11 @@ jobs:
 
           & $registerKsp | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            throw "RegisterKSP failed with exit code $LASTEXITCODE."
+            Write-Warning "RegisterKSP returned exit code $LASTEXITCODE; continuing to the eSigner load verification."
           }
           & $configureCsp | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            throw "eSignerCSP.Config failed with exit code $LASTEXITCODE."
+            Write-Warning "eSignerCSP.Config returned exit code $LASTEXITCODE; continuing to the eSigner load verification."
           }
           & $ckaTool config `
             -mode product `
