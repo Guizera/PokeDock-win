@@ -146,7 +146,6 @@ public sealed class Localization : DependencyObject
             ["WidgetArcadeSubtitle"] = new("Jogos retrô", "Retro games"),
 
             ["PokedexSubtitle"] = new("151 ESPÉCIES PARA DESCOBRIR", "151 SPECIES TO DISCOVER"),
-            ["TestEncounter"] = new("TESTAR ENCONTRO", "TEST ENCOUNTER"),
             ["Exploring"] = new("EXPLORANDO", "EXPLORING"),
             ["EncounterAvailable"] = new("ENCONTRO DISPONÍVEL", "ENCOUNTER AVAILABLE"),
             ["PokemonOnDock"] = new("UM POKÉMON ESTÁ NA DOCK", "A POKÉMON IS ON THE DOCK"),

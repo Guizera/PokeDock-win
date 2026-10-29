@@ -35,7 +35,6 @@ public sealed partial class MainWindow : Window
         _ = _session.SaveAsync();
     }
 
-    private void SimulateEncounter_Click(object sender, RoutedEventArgs e) => _session.SimulateEncounter();
     private void DockSettings_Click(object sender, RoutedEventArgs e) => App.Current.ShowDockSettings();
     private void AllFilter_Click(object sender, RoutedEventArgs e) => SetFilter(CollectionFilter.All);
     private void CaughtFilter_Click(object sender, RoutedEventArgs e) => SetFilter(CollectionFilter.Caught);
@@ -119,7 +118,6 @@ public sealed partial class MainWindow : Window
         SeenCountText.Text = $"{game.SeenCount}/151";
         DuplicateCountText.Text = game.DuplicateCount.ToString();
         BallCountText.Text = Localization.Format("Pokeballs", snapshot.Pokeballs, 10);
-        SimulateEncounterButton.IsEnabled = !snapshot.IsPaused;
         StatusText.Text = snapshot.IsPaused ? Localization.Text("Paused") : game.CurrentEncounter is null ? Localization.Text("Exploring") : Localization.Text("EncounterAvailable");
         NextEncounterText.Text = game.CurrentEncounter is not null ? Localization.Text("PokemonOnDock") : FormatNextEncounter(snapshot.NextEncounterAt);
         if (!_cardsInitialized || ProgressChanged(snapshot.Progress))

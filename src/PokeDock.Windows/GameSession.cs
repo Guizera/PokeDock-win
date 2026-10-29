@@ -55,8 +55,6 @@ public sealed class GameSession
         _timer.Start();
     }
 
-    public void SimulateEncounter() => Mutate(Game.SimulateEncounter);
-
     public void SetEncounterFrequency(EncounterFrequency frequency) =>
         Mutate(() => Game.SetFrequency(frequency));
 
