@@ -131,6 +131,30 @@ jobs:
             throw "The eSigner CKA installer failed with exit code $($process.ExitCode)."
           }
 
+          # The eSigner installer extracts both Visual C++ redistributables into a
+          # setup directory. SSL.com's official CI sample installs them before
+          # registering the KSP; without them RegisterKSP exits with code 1 on a
+          # clean GitHub-hosted Windows runner.
+          $redistributables = @(
+            Get-ChildItem -Path @($env:GITHUB_WORKSPACE, $installPath) `
+              -Filter 'vc_redist.*.exe' `
+              -Recurse `
+              -ErrorAction SilentlyContinue |
+              Sort-Object FullName -Unique
+          )
+          if ($redistributables.Count -lt 2) {
+            throw "The eSigner installer did not extract both Visual C++ redistributables. Found $($redistributables.Count)."
+          }
+          foreach ($redistributable in $redistributables) {
+            $redistProcess = Start-Process $redistributable.FullName `
+              -ArgumentList '/install', '/quiet', '/norestart' `
+              -Wait `
+              -PassThru
+            if ($redistProcess.ExitCode -notin @(0, 1638, 3010)) {
+              throw "Visual C++ redistributable $($redistributable.Name) failed with exit code $($redistProcess.ExitCode)."
+            }
+          }
+
           $registerKsp = Join-Path $installPath 'RegisterKSP.exe'
           $configureCsp = Join-Path $installPath 'eSignerCSP.Config.exe'
           $ckaTool = Join-Path $installPath 'eSignerCKATool.exe'
