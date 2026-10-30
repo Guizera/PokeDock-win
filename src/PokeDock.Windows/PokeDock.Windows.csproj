@@ -13,7 +13,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <TaskbarWatchdogRuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</TaskbarWatchdogRuntimeIdentifier>
     <TaskbarWatchdogRuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</TaskbarWatchdogRuntimeIdentifier>
-    <TaskbarWatchdogPublishDirectory>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)taskbar-watchdog\$(Configuration)\$(TaskbarWatchdogRuntimeIdentifier)\</TaskbarWatchdogPublishDirectory>
+    <TaskbarWatchdogIntermediateDirectory>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)taskbar-watchdog\$(Configuration)\$(TaskbarWatchdogRuntimeIdentifier)\obj\</TaskbarWatchdogIntermediateDirectory>
+    <TaskbarWatchdogPublishDirectory>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)taskbar-watchdog\$(Configuration)\$(TaskbarWatchdogRuntimeIdentifier)\publish\</TaskbarWatchdogPublishDirectory>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" />
@@ -23,8 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\PokeDock.Core\PokeDock.Core.csproj" />
     <ProjectReference Include="..\PokeDock.Application\PokeDock.Application.csproj" />
-    <ProjectReference Include="..\PokeDock.TaskbarWatchdog\PokeDock.TaskbarWatchdog.csproj"
-                      ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup Condition="'$(TaskbarWatchdogRuntimeIdentifier)' != ''">
     <Content Include="$(TaskbarWatchdogPublishDirectory)PokeDock.TaskbarWatchdog.exe">
@@ -41,8 +40,13 @@
           BeforeTargets="PrepareForBuild"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(TaskbarWatchdogRuntimeIdentifier)' != ''">
     <MSBuild Projects="..\PokeDock.TaskbarWatchdog\PokeDock.TaskbarWatchdog.csproj"
+             Targets="Restore"
+             BuildInParallel="false"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(TaskbarWatchdogRuntimeIdentifier);BaseIntermediateOutputPath=$(TaskbarWatchdogIntermediateDirectory);PublishDir=$(TaskbarWatchdogPublishDirectory)" />
+    <MSBuild Projects="..\PokeDock.TaskbarWatchdog\PokeDock.TaskbarWatchdog.csproj"
              Targets="Publish"
-             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(TaskbarWatchdogRuntimeIdentifier);PublishDir=$(TaskbarWatchdogPublishDirectory)" />
+             BuildInParallel="false"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(TaskbarWatchdogRuntimeIdentifier);BaseIntermediateOutputPath=$(TaskbarWatchdogIntermediateDirectory);PublishDir=$(TaskbarWatchdogPublishDirectory);NoRestore=true" />
   </Target>
 </Project>
 
