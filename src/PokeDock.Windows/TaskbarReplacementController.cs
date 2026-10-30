@@ -1,6 +1,6 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Text;
 using Microsoft.UI.Xaml;
 
 namespace PokeDock.Windows;
@@ -85,36 +85,23 @@ internal sealed class TaskbarReplacementController
     {
         try
         {
-            var script = $$"""
-                $ErrorActionPreference = 'SilentlyContinue'
-                Wait-Process -Id {{Environment.ProcessId}}
-                Add-Type -TypeDefinition @'
-                using System;
-                using System.Runtime.InteropServices;
-                public static class PokeDockTaskbarRecovery {
-                    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string className, string windowName);
-                    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string windowName);
-                    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr windowHandle, int command);
-                }
-                '@
-                $primary = [PokeDockTaskbarRecovery]::FindWindow('Shell_TrayWnd', $null)
-                if ($primary -ne [IntPtr]::Zero) { [PokeDockTaskbarRecovery]::ShowWindow($primary, 5) | Out-Null }
-                $secondary = [IntPtr]::Zero
-                while ($true) {
-                    $secondary = [PokeDockTaskbarRecovery]::FindWindowEx([IntPtr]::Zero, $secondary, 'Shell_SecondaryTrayWnd', $null)
-                    if ($secondary -eq [IntPtr]::Zero) { break }
-                    [PokeDockTaskbarRecovery]::ShowWindow($secondary, 5) | Out-Null
-                }
-                """;
-            var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
-            _ = Process.Start(new ProcessStartInfo("powershell.exe")
+            var watchdogPath = Path.Combine(AppContext.BaseDirectory, "PokeDock.TaskbarWatchdog.exe");
+            if (!File.Exists(watchdogPath))
+            {
+                WriteLog($"Recovery watchdog was not found: {watchdogPath}");
+                return;
+            }
+
+            var startInfo = new ProcessStartInfo(watchdogPath)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = $"-NoLogo -NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand {encoded}"
-            });
-            WriteLog("Recovery watchdog started.");
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            startInfo.ArgumentList.Add(Environment.ProcessId.ToString(CultureInfo.InvariantCulture));
+
+            var watchdog = Process.Start(startInfo);
+            WriteLog($"Native recovery watchdog started. Pid={watchdog?.Id.ToString(CultureInfo.InvariantCulture) ?? "unknown"}.");
         }
         catch (Exception exception)
         {

@@ -240,6 +240,12 @@ jobs:
           New-Item artifacts\release -ItemType Directory -Force | Out-Null
           Copy-Item $bundle.FullName artifacts\release\PokeDock-Windows.msixbundle
 
+      - name: Verify bundle contents
+        shell: pwsh
+        run: >-
+          ./scripts/Test-WindowsPackage.ps1
+          -BundlePath artifacts/release/PokeDock-Windows.msixbundle
+
       - name: Sign in to Azure
         if: ${{ vars.WINDOWS_SIGNING_MODE == 'artifact' }}
         uses: azure/login@v3

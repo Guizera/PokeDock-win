@@ -15,7 +15,7 @@
 - Integrações do Windows devem ficar atrás de interfaces para permitir testes sem Explorer/taskbar reais.
 - A barra não deve encerrar processos à força; o fechamento normal usa mensagens de janela.
 - A substituição visual da taskbar deve preservar o Explorer, registrar a área de trabalho original e restaurar ambos ao sair.
-- Um watchdog externo aguarda o processo principal e torna as taskbars visíveis novamente caso haja encerramento inesperado.
+- Um watchdog nativo, compilado para x64 e ARM64 e incluído no MSIX, aguarda o processo principal e torna as taskbars visíveis novamente caso haja encerramento inesperado. O aplicativo não inicia PowerShell, não executa scripts codificados e não compila código em tempo de execução.
 - Aplicativos abertos são obtidos a partir de janelas Win32 elegíveis para a taskbar; o clique ativa a janela sem iniciar outra instância.
 - Janelas são agrupadas pelo executável; cada janela continua selecionável individualmente no menu de contexto.
 

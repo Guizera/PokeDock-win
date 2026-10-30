@@ -30,6 +30,15 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
+      - name: Reject shell-based runtime watchdogs
+        shell: pwsh
+        run: |
+          $matches = Get-ChildItem src -Recurse -Filter *.cs |
+            Select-String -Pattern 'powershell\.exe|EncodedCommand|Add-Type'
+          if ($matches) {
+            $matches | ForEach-Object { Write-Error $_.ToString() }
+            throw 'Production code must not launch or generate PowerShell watchdogs.'
+          }
       - name: Build WinUI
         run: >-
           dotnet build src/PokeDock.Windows/PokeDock.Windows.csproj
@@ -37,4 +46,11 @@ jobs:
           -p:Platform=${{ matrix.platform }}
           -p:AppxPackageSigningEnabled=false
           -p:GenerateAppxPackageOnBuild=false
+      - name: Verify native recovery watchdog output
+        shell: pwsh
+        run: |
+          $watchdogs = @(Get-ChildItem src/PokeDock.Windows/bin -Filter PokeDock.TaskbarWatchdog.exe -Recurse)
+          if ($watchdogs.Count -lt 1) {
+            throw 'The native recovery watchdog was not copied to the Windows build output.'
+          }
 

@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeDock.Application", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeDock.Windows", "src\PokeDock.Windows\PokeDock.Windows.csproj", "{FB15D469-04AD-48F7-9D1C-9E224A2EE6EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeDock.TaskbarWatchdog", "src\PokeDock.TaskbarWatchdog\PokeDock.TaskbarWatchdog.csproj", "{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeDock.Core.Tests", "tests\PokeDock.Core.Tests\PokeDock.Core.Tests.csproj", "{DF1E775F-DB45-4280-9A10-ED936DA94E60}"
 EndProject
 Global
@@ -42,6 +44,14 @@ Global
 		{FB15D469-04AD-48F7-9D1C-9E224A2EE6EB}.Release|ARM64.Build.0 = Release|ARM64
 		{FB15D469-04AD-48F7-9D1C-9E224A2EE6EB}.Release|x64.ActiveCfg = Release|x64
 		{FB15D469-04AD-48F7-9D1C-9E224A2EE6EB}.Release|x64.Build.0 = Release|x64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Debug|ARM64.Build.0 = Debug|ARM64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Debug|x64.ActiveCfg = Debug|x64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Debug|x64.Build.0 = Debug|x64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Release|ARM64.ActiveCfg = Release|ARM64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Release|ARM64.Build.0 = Release|ARM64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Release|x64.ActiveCfg = Release|x64
+		{A6E3B9F4-0A34-4D8D-A055-0D9D6AC7E181}.Release|x64.Build.0 = Release|x64
 		{DF1E775F-DB45-4280-9A10-ED936DA94E60}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{DF1E775F-DB45-4280-9A10-ED936DA94E60}.Debug|ARM64.Build.0 = Debug|Any CPU
 		{DF1E775F-DB45-4280-9A10-ED936DA94E60}.Debug|x64.ActiveCfg = Debug|Any CPU

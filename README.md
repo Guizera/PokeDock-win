@@ -21,7 +21,7 @@ Cliente nativo do PokeDock para Windows 11, desenvolvido em C#/.NET e WinUI 3.
 - Gravações de progresso serializadas para que capturas simultâneas não sejam descartadas durante atualização, encerramento ou troca de versão.
 - Exportação/importação da coleção em `.pokedock`, preservando os maiores contadores e a data mais recente de cada Pokémon.
 - Verificação de atualização para instalações distribuídas por MSIX/App Installer.
-- Watchdog externo que restaura a taskbar mesmo se o processo do PokeDock encerrar inesperadamente.
+- Watchdog nativo incluído no pacote que restaura a taskbar mesmo se o processo do PokeDock encerrar inesperadamente, sem iniciar PowerShell ou compilar código em tempo de execução.
 
 As integrações de taskbar, aplicativos, janelas, energia, widgets e emuladores estão na fase de validação manual no Windows ARM64.
 

@@ -15,6 +15,8 @@
 - Ativar “mostrar em todos os monitores”, conectar/desconectar um monitor e confirmar uma Dock centralizada por tela.
 - Taskbar visível e com auto-ocultar.
 - Encerrar o processo pelo Gerenciador de Tarefas e confirmar que o watchdog torna a taskbar nativa visível novamente.
+- Confirmar no Gerenciador de Tarefas que o processo auxiliar é `PokeDock.TaskbarWatchdog.exe` e que o PokeDock não inicia `powershell.exe`.
+- Instalar e executar o pacote em uma máquina limpa com Microsoft Defender e, quando disponível, Avast atualizado, sem adicionar exceções ao antivírus.
 - Reinício do Explorer com o PokeDock aberto.
 - Suspender e retomar a VM.
 - Abrir, ativar e fechar apps Win32 e empacotados.
