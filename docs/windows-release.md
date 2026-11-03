@@ -73,7 +73,7 @@ Cada nova versão deve ser numericamente maior. A tag `v1.4.2` vira a versão MS
 
 ## Checklist de validação
 
-1. Instale `PokeDock.appinstaller` em um Windows 11 limpo, sem certificados de desenvolvimento.
+1. Instale `PokeDock.appinstaller` em um Windows 10 versão 1809 ou posterior e em um Windows 11 limpo, sem certificados de desenvolvimento.
 2. Confirme x64 e ARM64.
 3. Publique uma versão maior e abra a versão anterior.
 4. Confirme o aviso do App Installer e o fluxo pelo botão do app.

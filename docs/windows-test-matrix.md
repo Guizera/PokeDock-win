@@ -42,6 +42,7 @@
 
 ## Hardware físico antes da publicação
 
+- Pelo menos um PC Windows 10 versão 1809 ou posterior em x64.
 - Pelo menos um PC Windows 11 x64.
 - Pelo menos um dispositivo Windows 11 ARM64 ou beta externo equivalente.
 - Usuário padrão e cenário com aplicativo elevado para confirmar as limitações de integridade do Windows.

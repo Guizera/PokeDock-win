@@ -1,6 +1,6 @@
 # PokeDock para Windows
 
-Cliente nativo do PokeDock para Windows 11, desenvolvido em C#/.NET e WinUI 3.
+Cliente nativo do PokeDock para Windows 10 e Windows 11, desenvolvido em C#/.NET e WinUI 3.
 
 ## Estado atual
 
@@ -27,7 +27,7 @@ As integrações de taskbar, aplicativos, janelas, energia, widgets e emuladores
 
 ## Requisitos para o app Windows
 
-- Windows 11.
+- Windows 10 versão 1809 (build 17763) ou posterior.
 - Visual Studio com os workloads **.NET desktop development** e **Windows application development**.
 - SDK .NET 10.
 - Windows App SDK estável configurado pelo NuGet.
@@ -78,7 +78,7 @@ O workflow `.github/workflows/release-windows.yml` cria os dois assets ao public
 
 ## Próximos marcos
 
-1. Validar substituição da taskbar, múltiplos monitores e escalas de 100% a 200% no Windows 11 ARM64 e x64.
+1. Validar substituição da taskbar, múltiplos monitores e escalas de 100% a 200% no Windows 10/11 ARM64 e x64.
 2. Configurar a identidade e o certificado de assinatura de produção no environment `windows-release` do GitHub.
 3. Refinar sessões globais de mídia com capa do álbum e controles visíveis diretamente na Dock.
 4. Adicionar miniaturas das janelas ao seletor de aplicativos e concluir a validação dos emuladores com ROMs fornecidas pelo usuário.

@@ -1,6 +1,9 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$BundlePath
+    [string]$BundlePath,
+
+    [Parameter(Mandatory = $false)]
+    [version]$ExpectedMinimumWindowsVersion = '10.0.17763.0'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,13 +29,19 @@ try {
             continue
         }
 
+        $targetDeviceFamily = $manifest.Package.Dependencies.TargetDeviceFamily
+        $minimumWindowsVersion = [version]$targetDeviceFamily.MinVersion
+        if ($minimumWindowsVersion -ne $ExpectedMinimumWindowsVersion) {
+            throw "Package $($package.Name) targets Windows $minimumWindowsVersion instead of $ExpectedMinimumWindowsVersion."
+        }
+
         $watchdogPath = Join-Path $packageDirectory 'PokeDock.TaskbarWatchdog.exe'
         if (-not (Test-Path -LiteralPath $watchdogPath)) {
             throw "Package $($package.Name) does not contain PokeDock.TaskbarWatchdog.exe."
         }
 
         $architectures[$architecture] = $true
-        Write-Host "Verified native taskbar watchdog in $architecture package."
+        Write-Host "Verified Windows $minimumWindowsVersion minimum and native taskbar watchdog in $architecture package."
     }
 
     foreach ($requiredArchitecture in @('x64', 'arm64')) {

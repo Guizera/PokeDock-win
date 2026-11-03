@@ -22,6 +22,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+if ([version]$Version -lt [version]'1.0.0.0') {
+    throw 'App Installer package versions must use a non-zero major component for Windows 10 compatibility.'
+}
+
 $settings = New-Object System.Xml.XmlWriterSettings
 $settings.Indent = $true
 $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
@@ -34,7 +38,10 @@ if ($outputDirectory) {
 
 $writer = [System.Xml.XmlWriter]::Create($OutputPath, $settings)
 try {
-    $namespace = 'http://schemas.microsoft.com/appx/appinstaller/2021'
+    # The 2017/2 schema is supported from Windows 10 version 1803 onward.
+    # Keep the feed on this schema so Windows 10 can parse it; newer 2021-only
+    # attributes are not required for the update behavior used by PokeDock.
+    $namespace = 'http://schemas.microsoft.com/appx/appinstaller/2017/2'
     $writer.WriteStartDocument()
     $writer.WriteStartElement('AppInstaller', $namespace)
     $writer.WriteAttributeString('Version', $Version)
@@ -50,8 +57,6 @@ try {
     $writer.WriteStartElement('UpdateSettings', $namespace)
     $writer.WriteStartElement('OnLaunch', $namespace)
     $writer.WriteAttributeString('HoursBetweenUpdateChecks', '4')
-    $writer.WriteAttributeString('ShowPrompt', 'true')
-    $writer.WriteAttributeString('UpdateBlocksActivation', 'false')
     $writer.WriteEndElement()
     $writer.WriteElementString('AutomaticBackgroundTask', $namespace, '')
     $writer.WriteEndElement()
@@ -64,6 +69,9 @@ finally {
 }
 
 [xml]$validation = Get-Content -LiteralPath $OutputPath -Raw
+if ($validation.DocumentElement.NamespaceURI -ne $namespace) {
+    throw "Generated App Installer uses an unexpected schema: $($validation.DocumentElement.NamespaceURI)"
+}
 if ($validation.AppInstaller.MainBundle.Version -ne $Version) {
     throw "Generated App Installer has an unexpected bundle version."
 }
