@@ -39,6 +39,16 @@ jobs:
             $matches | ForEach-Object { Write-Error $_.ToString() }
             throw 'Production code must not launch or generate PowerShell watchdogs.'
           }
+      - name: Require Windows 10-compatible icon font
+        shell: pwsh
+        run: |
+          $matches = Get-ChildItem src/PokeDock.Windows -Recurse -File |
+            Where-Object { $_.Extension -in '.cs', '.xaml' } |
+            Select-String -SimpleMatch 'Segoe Fluent Icons'
+          if ($matches) {
+            $matches | ForEach-Object { Write-Error $_.ToString() }
+            throw 'Windows UI icons must use Segoe MDL2 Assets for Windows 10 compatibility.'
+          }
       - name: Build WinUI
         run: >-
           dotnet build src/PokeDock.Windows/PokeDock.Windows.csproj

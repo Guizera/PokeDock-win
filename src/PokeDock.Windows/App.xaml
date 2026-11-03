@@ -15,6 +15,9 @@
              display scaling while the layout, colors and spacing retain the retro style. -->
         <FontFamily x:Key="GameBoyFont">Segoe UI Variable Text, Segoe UI</FontFamily>
         <FontFamily x:Key="DockTextFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+        <!-- Segoe MDL2 Assets ships with Windows 10 and remains available on
+             Windows 11. The newer Fluent icon font is Windows 11-only. -->
+        <FontFamily x:Key="DockIconFont">Segoe MDL2 Assets</FontFamily>
 
         <Style x:Key="GameBoyButtonStyle" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource GameBoyFont}" />

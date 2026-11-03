@@ -1,4 +1,5 @@
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 
 namespace PokeDock.Windows;
 
@@ -10,6 +11,8 @@ public partial class App : Microsoft.UI.Xaml.Application
     private EncounterWindow? _encounterWindow;
     private DockSettingsWindow? _dockSettingsWindow;
     private WidgetHubWindow? _widgetHubWindow;
+    private readonly DispatcherTimer _displayRefreshTimer = new() { Interval = TimeSpan.FromSeconds(2) };
+    private string _displayConfiguration = string.Empty;
     private bool _rebuildingDocks;
     private bool _exiting;
 
@@ -20,6 +23,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public App()
     {
         InitializeComponent();
+        _displayRefreshTimer.Tick += DisplayRefreshTimer_Tick;
         AppDomain.CurrentDomain.ProcessExit += (_, _) => _taskbar.Restore("ProcessExit");
         UnhandledException += (_, args) =>
         {
@@ -37,7 +41,8 @@ public partial class App : Microsoft.UI.Xaml.Application
             DockPreferences.Current.NotificationBadgesEnabled = await NotificationBadges.EnableAsync();
         }
 
-        CreateDockWindows();
+        CreateDockWindows(FindDisplayAreas());
+        _displayRefreshTimer.Start();
     }
 
     private void Session_EncounterAppeared(object? sender, PokemonEncounterEventArgs args)
@@ -103,13 +108,27 @@ public partial class App : Microsoft.UI.Xaml.Application
         _taskbar.Restore("DockWindow.Closed");
     }
 
-    public void RefreshDockDisplays()
+    private void DisplayRefreshTimer_Tick(object? sender, object e)
+    {
+        if (_rebuildingDocks || _exiting) return;
+        var displays = FindDisplayAreas();
+        if (DisplayConfiguration(displays) == _displayConfiguration) return;
+        RefreshDockDisplays(displays);
+    }
+
+    private void RefreshDockDisplays(IReadOnlyList<DisplayArea> displays)
     {
         _rebuildingDocks = true;
-        foreach (var dock in _dockWindows.ToArray()) dock.Close();
-        _dockWindows.Clear();
-        CreateDockWindows();
-        _rebuildingDocks = false;
+        try
+        {
+            foreach (var dock in _dockWindows.ToArray()) dock.Close();
+            _dockWindows.Clear();
+            CreateDockWindows(displays);
+        }
+        finally
+        {
+            _rebuildingDocks = false;
+        }
     }
 
     internal void NotifyDockWindowClosed(DockWindow dockWindow)
@@ -121,19 +140,9 @@ public partial class App : Microsoft.UI.Xaml.Application
         }
     }
 
-    private void CreateDockWindows()
+    private void CreateDockWindows(IReadOnlyList<DisplayArea> displays)
     {
-        IReadOnlyList<DisplayArea> displays;
-        try
-        {
-            displays = DockPreferences.Current.ShowOnAllDisplays
-                ? DisplayArea.FindAll().ToArray()
-                : [DisplayArea.Primary];
-        }
-        catch
-        {
-            displays = [DisplayArea.Primary];
-        }
+        _displayConfiguration = DisplayConfiguration(displays);
 
         foreach (var display in displays)
         {
@@ -142,6 +151,29 @@ public partial class App : Microsoft.UI.Xaml.Application
             dock.Activate();
         }
     }
+
+    private static IReadOnlyList<DisplayArea> FindDisplayAreas()
+    {
+        try
+        {
+            var displays = DisplayArea.FindAll().ToArray();
+            return displays.Length > 0 ? displays : [DisplayArea.Primary];
+        }
+        catch
+        {
+            return [DisplayArea.Primary];
+        }
+    }
+
+    private static string DisplayConfiguration(IEnumerable<DisplayArea> displays) => string.Join(
+        "|",
+        displays
+            .Select(display => display.OuterBounds)
+            .OrderBy(bounds => bounds.X)
+            .ThenBy(bounds => bounds.Y)
+            .ThenBy(bounds => bounds.Width)
+            .ThenBy(bounds => bounds.Height)
+            .Select(bounds => $"{bounds.X},{bounds.Y},{bounds.Width},{bounds.Height}"));
 
     internal void EnableTaskbarReplacement()
     {
@@ -162,6 +194,8 @@ public partial class App : Microsoft.UI.Xaml.Application
     public async Task ExitPokeDockAsync()
     {
         _exiting = true;
+        _displayRefreshTimer.Stop();
+        _displayRefreshTimer.Tick -= DisplayRefreshTimer_Tick;
         await Session.SaveAsync();
         _taskbar.Restore("Exit button");
         _encounterWindow?.Close();

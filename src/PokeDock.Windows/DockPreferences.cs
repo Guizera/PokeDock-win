@@ -83,7 +83,6 @@ public sealed class DockPreferences
     private bool _animationsEnabled = true;
     private bool _showRunningApps = true;
     private bool _encounterNotificationsEnabled = true;
-    private bool _showOnAllDisplays;
     private bool _notificationBadgesEnabled;
     private List<DockWidgetKind> _widgets = [DockWidgetKind.Clock, DockWidgetKind.Encounter];
     private List<DockAppDefinition> _apps = [];
@@ -135,17 +134,6 @@ public sealed class DockPreferences
         {
             if (_encounterNotificationsEnabled == value) return;
             _encounterNotificationsEnabled = value;
-            PersistAndNotify();
-        }
-    }
-
-    public bool ShowOnAllDisplays
-    {
-        get => _showOnAllDisplays;
-        set
-        {
-            if (_showOnAllDisplays == value) return;
-            _showOnAllDisplays = value;
             PersistAndNotify();
         }
     }
@@ -230,7 +218,6 @@ public sealed class DockPreferences
             ShowRunningApps,
             _apps,
             EncounterNotificationsEnabled,
-            ShowOnAllDisplays,
             NotificationBadgesEnabled)));
     }
 
@@ -246,7 +233,6 @@ public sealed class DockPreferences
             preferences._animationsEnabled = stored.AnimationsEnabled;
             preferences._showRunningApps = stored.ShowRunningApps;
             preferences._encounterNotificationsEnabled = stored.EncounterNotificationsEnabled;
-            preferences._showOnAllDisplays = stored.ShowOnAllDisplays;
             preferences._notificationBadgesEnabled = stored.NotificationBadgesEnabled;
             if (stored.Widgets is not null)
             {
@@ -300,6 +286,5 @@ public sealed class DockPreferences
         bool ShowRunningApps = true,
         List<DockAppDefinition>? Apps = null,
         bool EncounterNotificationsEnabled = true,
-        bool ShowOnAllDisplays = false,
         bool NotificationBadgesEnabled = false);
 }

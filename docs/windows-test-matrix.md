@@ -12,7 +12,7 @@
 
 - Escala de tela: 100%, 125%, 150% e 200%.
 - Um monitor e múltiplos monitores.
-- Ativar “mostrar em todos os monitores”, conectar/desconectar um monitor e confirmar uma Dock centralizada por tela.
+- Conectar e desconectar monitores e confirmar automaticamente uma Dock centralizada em cada tela ativa.
 - Taskbar visível e com auto-ocultar.
 - Encerrar o processo pelo Gerenciador de Tarefas e confirmar que o watchdog torna a taskbar nativa visível novamente.
 - Confirmar no Gerenciador de Tarefas que o processo auxiliar é `PokeDock.TaskbarWatchdog.exe` e que o PokeDock não inicia `powershell.exe`.

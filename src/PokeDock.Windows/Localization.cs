@@ -67,7 +67,6 @@ public sealed class Localization : DependencyObject
             ["AppearanceBehavior"] = new("☷  APARÊNCIA E COMPORTAMENTO", "☷  APPEARANCE AND BEHAVIOR"),
             ["AnimateTheme"] = new("ANIMAR TEMA", "ANIMATE THEME"),
             ["ShowRunningApps"] = new("MOSTRAR APPS EM EXECUÇÃO", "SHOW RUNNING APPS"),
-            ["ShowOnAllDisplays"] = new("MOSTRAR EM TODOS OS MONITORES", "SHOW ON ALL DISPLAYS"),
             ["StartWithWindows"] = new("INICIAR COM O WINDOWS", "START WITH WINDOWS"),
             ["StartupUnavailable"] = new("Disponível após instalar o pacote MSIX.", "Available after installing the MSIX package."),
             ["StartupManaged"] = new("Gerenciado pelas configurações de inicialização do Windows.", "Managed by Windows Startup settings."),

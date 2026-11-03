@@ -30,7 +30,6 @@ public sealed partial class DockSettingsWindow : Window
         NativeWindow.ResizeAndCenter(this, 860, 790);
         AnimationsToggle.IsOn = _preferences.AnimationsEnabled;
         RunningAppsToggle.IsOn = _preferences.ShowRunningApps;
-        AllDisplaysToggle.IsOn = _preferences.ShowOnAllDisplays;
         EncounterNotificationsToggle.IsOn = _preferences.EncounterNotificationsEnabled;
         NotificationBadgesToggle.IsOn = _preferences.NotificationBadgesEnabled;
         var startupState = await StartupService.GetStateAsync();
@@ -53,13 +52,6 @@ public sealed partial class DockSettingsWindow : Window
     private void RunningAppsToggle_Toggled(object sender, RoutedEventArgs e)
     {
         if (_initialized) _preferences.ShowRunningApps = RunningAppsToggle.IsOn;
-    }
-
-    private void AllDisplaysToggle_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (!_initialized) return;
-        _preferences.ShowOnAllDisplays = AllDisplaysToggle.IsOn;
-        App.Current.RefreshDockDisplays();
     }
 
     private void EncounterNotificationsToggle_Toggled(object sender, RoutedEventArgs e)
@@ -309,7 +301,7 @@ public sealed partial class DockSettingsWindow : Window
                 Icon = new FontIcon
                 {
                     Glyph = definition.Glyph,
-                    FontFamily = new FontFamily("Segoe Fluent Icons")
+                    FontFamily = Iconography.Font
                 }
             };
             var kind = definition.Kind;
@@ -415,7 +407,7 @@ public sealed partial class DockSettingsWindow : Window
         row.Children.Add(new FontIcon
         {
             Glyph = glyph,
-            FontFamily = new FontFamily("Segoe Fluent Icons"),
+            FontFamily = Iconography.Font,
             FontSize = 20,
             Foreground = (Brush)Microsoft.UI.Xaml.Application.Current.Resources["GameBoyDarkBrush"],
             VerticalAlignment = VerticalAlignment.Center
@@ -470,7 +462,7 @@ public sealed partial class DockSettingsWindow : Window
             Content = new FontIcon
             {
                 Glyph = glyph,
-                FontFamily = new FontFamily("Segoe Fluent Icons"),
+                FontFamily = Iconography.Font,
                 FontSize = 12
             }
         };
@@ -502,7 +494,7 @@ public sealed partial class DockSettingsWindow : Window
             content.Children.Add(new FontIcon
             {
                 Glyph = definition.Glyph,
-                FontFamily = new FontFamily("Segoe Fluent Icons"),
+                FontFamily = Iconography.Font,
                 FontSize = 17,
                 Foreground = new SolidColorBrush(Colors.White)
             });

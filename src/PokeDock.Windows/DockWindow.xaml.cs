@@ -347,7 +347,7 @@ public sealed partial class DockWindow : Window
                 content.Children.Add(new FontIcon
                 {
                     Glyph = "\uECAA",
-                    FontFamily = new FontFamily("Segoe Fluent Icons"),
+                    FontFamily = Iconography.Font,
                     FontSize = 26,
                     Foreground = new SolidColorBrush(global::Windows.UI.Color.FromArgb(255, 255, 255, 255))
                 });
@@ -417,7 +417,7 @@ public sealed partial class DockWindow : Window
                 content.Children.Add(new FontIcon
                 {
                     Glyph = "\uECAA",
-                    FontFamily = new FontFamily("Segoe Fluent Icons"),
+                    FontFamily = Iconography.Font,
                     FontSize = 26,
                     Foreground = White(1)
                 });
@@ -560,7 +560,7 @@ public sealed partial class DockWindow : Window
             Icon = new FontIcon
             {
                 Glyph = glyph,
-                FontFamily = new FontFamily("Segoe Fluent Icons")
+                FontFamily = Iconography.Font
             }
         };
         item.Click += (_, _) => action();
@@ -627,7 +627,7 @@ public sealed partial class DockWindow : Window
             content.Children.Add(new FontIcon
             {
                 Glyph = definition.Glyph,
-                FontFamily = new FontFamily("Segoe Fluent Icons"),
+                FontFamily = Iconography.Font,
                 FontSize = 18,
                 Foreground = White(0.94)
             });

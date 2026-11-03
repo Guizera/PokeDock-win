@@ -463,7 +463,7 @@ internal sealed class WidgetHubWindow : Window
             placeholder.Children.Add(new FontIcon
             {
                 Glyph = "\uE7FC",
-                FontFamily = new FontFamily("Segoe Fluent Icons"),
+                FontFamily = Iconography.Font,
                 FontSize = 46,
                 Foreground = ResourceBrush("GameBoyDarkBrush"),
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -1071,7 +1071,7 @@ internal sealed class WidgetHubWindow : Window
             Width = 32,
             Height = 32,
             Padding = new Thickness(0),
-            Content = new FontIcon { Glyph = glyph, FontFamily = new FontFamily("Segoe Fluent Icons"), FontSize = 13 }
+            Content = new FontIcon { Glyph = glyph, FontFamily = Iconography.Font, FontSize = 13 }
         };
         button.Click += (_, _) => action();
         button.SetValue(ToolTipService.ToolTipProperty, tooltip);

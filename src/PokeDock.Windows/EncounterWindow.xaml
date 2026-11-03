@@ -72,7 +72,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="&#xE8BD;" FontFamily="Segoe Fluent Icons" FontSize="18" Foreground="{StaticResource GameBoyDarkBrush}" />
+                <TextBlock Text="&#xE8BD;" FontFamily="{StaticResource DockIconFont}" FontSize="18" Foreground="{StaticResource GameBoyDarkBrush}" />
                 <TextBlock x:Name="DialogueText" Grid.Column="1" TextWrapping="Wrap" MaxLines="2" FontFamily="{StaticResource GameBoyFont}" FontSize="13" FontWeight="Bold" Foreground="{StaticResource GameBoyDarkBrush}" />
                 <TextBlock Grid.Column="2" Text="▼" FontSize="10" FontWeight="Black" Foreground="{StaticResource GameBoyDarkBrush}" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
             </Grid>

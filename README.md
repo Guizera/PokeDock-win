@@ -15,7 +15,7 @@ Cliente nativo do PokeDock para Windows 10 e Windows 11, desenvolvido em C#/.NET
 - Widgets configuráveis de relógio, Pokédex, próximo encontro, Spotify, mídia do Windows, dólar, finanças, foco, tarefas, notas e Arcade, com ordem persistida.
 - Controles de faixa anterior, reproduzir/pausar e próxima faixa para Spotify e sessões de mídia do Windows.
 - Interface em português e inglês, selecionada automaticamente pelo idioma de exibição do Windows.
-- Inicialização opcional com o Windows, Dock opcional em todos os monitores e notificações de novos encontros.
+- Inicialização opcional com o Windows, uma Dock em cada monitor e notificações de novos encontros.
 - Arcade com Memória e emulação de Game Boy/Game Boy Color e Super Nintendo via EmulatorJS; as ROMs são importadas pelo usuário e permanecem em `%LOCALAPPDATA%\PokeDock\ROMs`.
 - Testes automatizados do domínio e CI para Windows x64 e ARM64.
 - Gravações de progresso serializadas para que capturas simultâneas não sejam descartadas durante atualização, encerramento ou troca de versão.
